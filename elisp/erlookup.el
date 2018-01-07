@@ -50,6 +50,8 @@
   "guess app-root dir."
   (let (app-root)
     (cond
+     ((setq app-root (locate-dominating-file default-directory "rebar.config"))
+      (expand-file-name app-root))
      ((setq app-root (locate-dominating-file default-directory "Emakefile"))
       (expand-file-name app-root))
      ((setq app-root (locate-dominating-file default-directory "rebar"))
