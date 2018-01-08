@@ -171,13 +171,11 @@ parameters is a list of found header files"
      (format "-record(\\s *%s\\(,\\|(\\)" record)))
 
 (defun erl-is-pattern ()
-  (save-excursion
-    (beginning-of-thing 'symbol)
-    (cond
-     ((save-excursion (progn (beginning-of-line)(looking-at erl-include-or-include-lib-pattern))) 'open-header)
-     ((looking-back "\\#") (erl-record-regex))
-     ((looking-back "\\?") (erl-macro-regex))
-     (t t))))
+  (cond
+   ((save-excursion (progn (beginning-of-line)(looking-at erl-include-or-include-lib-pattern))) 'open-header)
+   ((looking-back "\\#") (erl-record-regex))
+   ((looking-back "\\?") (erl-macro-regex))
+   (t t)))
 ;;; find variable
 (defun erl-find-variable-binding ()
   (ring-insert-at-beginning erl-find-history-ring (copy-marker (point-marker)))
