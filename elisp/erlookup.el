@@ -137,11 +137,12 @@ only '-include(' ,no 'include_lib('"
     ))
 
  ;; (erl-extract-include-lib-paths-from-buffer (current-buffer) (lambda (header-files) (print header-files) ))
-(defun erl-extract-include-lib-paths-from-buffer (buffer hook)
+(defun erl-extract-include-lib-paths-from-buffer (buffer pattern hook)
   "Collects included paths from a file,only '-include_lib(' ,no
 'include(' if include_lib path exists ,the `hook' would be
-called,the `hook' is a function accept one parameter,the
-parameters is a list of found header files"
+called,the `hook' is a function accept two parameters, the first
+one is pattern which is a string match '-record(...' or '-define(...',
+and the other is a list of found header files"
   (let ((node (or erl-nodename-cache (erl-target-node)))
         (paths nil))
     (save-excursion
@@ -153,9 +154,9 @@ parameters is a list of found header files"
 
     (erl-spawn
       (erl-send-rpc node 'distel 'find_header_files (list paths))
-      (erl-receive (hook)
+      (erl-receive (pattern hook)
           ((['rex header-files ]
-            (apply hook (list header-files)))
+            (apply hook (list pattern header-files)))
            (['rex ['error reason]]
             (ring-remove erl-find-history-ring)
             (message "Error: %s" reason)))))
@@ -275,7 +276,8 @@ or   (nil header-file-already-opened-in-emacs-p)"
     (unless found
       (erl-extract-include-lib-paths-from-buffer
        (current-buffer)
-       (lambda (header-files)
+       pattern
+       (lambda (pattern header-files)
          (setq found
                (catch 'found
                  (dolist (header-file header-files )
